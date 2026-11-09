@@ -1,0 +1,49 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Clave de subida para Google Play (ver keystore.properties en la raíz del proyecto).
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file('keystore.properties')
+if (keystoreFile.exists()) keystoreFile.withInputStream { keystoreProps.load(it) }
+
+android {
+    namespace 'com.avd.time'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.avd.time'
+        minSdk 26
+        targetSdk 36
+        // Sube versionCode en 1 (y cambia versionName) cada vez que publiques una actualización.
+        versionCode 1
+        versionName '1.0'
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig keystoreFile.exists() ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+base {
+    archivesName = 'AVD-time'
+}
