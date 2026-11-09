@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -36,3 +39,12 @@ jobs:
         with:
           name: AVD-time-apk
           path: app/build/outputs/apk/release/*.apk
+
+      - name: Publicar descarga del APK
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cp app/build/outputs/apk/release/*.apk AVD-time.apk
+          TAG="v1.0-${{ github.run_number }}"
+          gh release create "$TAG" AVD-time.apk --title "AVD time (compilación ${{ github.run_number }})" --notes "Descarga AVD-time.apk en tu teléfono Android y ábrelo para instalarlo." --latest
+        env:
+          GH_TOKEN: ${{ github.token }}
