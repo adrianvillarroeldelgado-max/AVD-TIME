@@ -26,7 +26,9 @@ La app completa está en `app/src/main/assets/index.html`. La parte nativa (`Mai
 
 ## Notas
 
-- Este repositorio es público, así que la clave de firma NO está aquí. Sin `keystore.properties` el APK se firma con una clave temporal de cada compilación. Para firmar siempre con la misma clave (necesario para Google Play y para actualizar sin desinstalar), pon el repositorio en privado y añade `keystore.properties` y `app/avd-time-upload.jks`.
+- Cada APK se firma siempre con la misma clave (`app/avd-time-upload.jks`, contraseña en `keystore.properties`), así que las versiones nuevas se instalan encima de la anterior sin borrar datos.
+- Cada cambio subido a `main` compila una versión nueva (1.0.N) y la publica en Releases. La app la detecta al abrirse y muestra el botón **Actualizar**.
+- Aviso: el repositorio es público y la clave de firma es visible. Para protegerla, pon el repositorio en privado (Settings > General > Danger Zone > Change visibility).
 - GitHub genera dos archivos: el AAB (para Google Play) y el APK (para instalar directo en un teléfono).
 - Con la pantalla bloqueada Android puede pausar la app. Mientras entrenas la pantalla se mantiene encendida sola.
 - Los programas, memorias e historial se guardan en el teléfono.

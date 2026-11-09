@@ -15,9 +15,10 @@ android {
         applicationId 'com.avd.time'
         minSdk 26
         targetSdk 36
-        // Sube versionCode en 1 (y cambia versionName) cada vez que publiques una actualización.
-        versionCode 1
-        versionName '1.0'
+        // La versión sube sola con cada compilación de GitHub (número de ejecución).
+        def build = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+        versionCode build
+        versionName "1.0.${build}"
     }
 
     signingConfigs {
@@ -38,10 +39,18 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
 }
 
 base {
