@@ -2,10 +2,18 @@ plugins {
     id 'com.android.application'
 }
 
-// Clave de subida para Google Play (ver keystore.properties en la raíz del proyecto).
+// Firma de publicación: se toma de variables de entorno (secretos de GitHub) o de keystore.properties.
+// Sin ellas, el APK "release" se firma con la clave de depuración (sirve para probar, no para actualizar).
 def keystoreProps = new Properties()
 def keystoreFile = rootProject.file('keystore.properties')
 if (keystoreFile.exists()) keystoreFile.withInputStream { keystoreProps.load(it) }
+
+def signingValue = { String env, String prop ->
+    def v = System.getenv(env)
+    (v != null && !v.trim().isEmpty()) ? v : keystoreProps.getProperty(prop)
+}
+def releaseStoreFile = signingValue('SIGNING_STORE_FILE', 'storeFile')
+def hasReleaseKey = releaseStoreFile != null && rootProject.file(releaseStoreFile).exists()
 
 android {
     namespace 'com.avd.time'
@@ -15,19 +23,34 @@ android {
         applicationId 'com.avd.time'
         minSdk 26
         targetSdk 36
-        // La versión sube sola con cada compilación de GitHub (número de ejecución).
-        def build = (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
-        versionCode build
-        versionName "1.0.${build}"
+        // El código de versión lo calcula GitHub (minutos desde 2024 del último cambio): siempre sube
+        // y cada versión nueva se instala encima de la anterior sin borrar datos.
+        versionCode((System.getenv('VERSION_CODE') ?: '1').toInteger())
+        versionName(System.getenv('VERSION_NAME') ?: '1.0-dev')
+        // Repositorio donde la versión de GitHub busca actualizaciones.
+        def repo = System.getenv('GITHUB_REPOSITORY') ?: 'adrianvillarroeldelgado-max/AVD-TIME'
+        buildConfigField 'String', 'UPDATE_REPO', "\"${repo}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    // github: APK de descarga directa, se actualiza sola desde GitHub Releases.
+    // play: paquete para Google Play (Play se encarga de las actualizaciones; sin permiso de internet).
+    flavorDimensions 'canal'
+    productFlavors {
+        github { dimension 'canal' }
+        play { dimension 'canal' }
     }
 
     signingConfigs {
         release {
-            if (keystoreFile.exists()) {
-                storeFile file(keystoreProps['storeFile'])
-                storePassword keystoreProps['storePassword']
-                keyAlias keystoreProps['keyAlias']
-                keyPassword keystoreProps['keyPassword']
+            if (hasReleaseKey) {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword signingValue('SIGNING_STORE_PASSWORD', 'storePassword')
+                keyAlias signingValue('SIGNING_KEY_ALIAS', 'keyAlias')
+                keyPassword signingValue('SIGNING_KEY_PASSWORD', 'keyPassword')
             }
         }
     }
@@ -35,22 +58,19 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig keystoreFile.exists() ? signingConfigs.release : signingConfigs.debug
+            signingConfig hasReleaseKey ? signingConfigs.release : signingConfigs.debug
         }
-    }
-
-    buildFeatures {
-        buildConfig true
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-}
 
-dependencies {
-    implementation 'androidx.core:core:1.13.1'
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 base {

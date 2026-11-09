@@ -1,34 +1,28 @@
-# AVD time · App Android
+# AVD time
 
-Temporizador de intervalos con modos 1 INT, 2 INT, 3+ INT y MULTI, cronómetro, reloj, 20 memorias, historial, plantillas, voz y pantalla completa.
+Temporizador de intervalos para entrenamiento de AVD · Entrenamiento físico deportivo: modos 1 INT, 2 INT, 3+ INT y MULTI, plantillas (Tabata, EMOM, AMRAP, For Time, Boxeo), voz en español, pantalla completa, 20 memorias, historial semanal, cronómetro y reloj.
 
-La app completa está en `app/src/main/assets/index.html`. La parte nativa (`MainActivity.java`) añade voz en español, vibración, pantalla siempre encendida y copiar al portapapeles.
+**Descargar:** https://github.com/adrianvillarroeldelgado-max/AVD-TIME/releases/latest/download/AVD-time.apk
 
-## Opción A: compilar gratis con GitHub (sin instalar nada)
+Para publicar versiones y configurar la firma, sigue **[PUBLICAR.md](PUBLICAR.md)**.
 
-1. Crea una cuenta en github.com y un repositorio nuevo (por ejemplo `avd-time`).
-2. Sube **el contenido** de esta carpeta (no la carpeta en sí), incluida la carpeta oculta `.github`.
-3. Ve a la pestaña **Actions**. La compilación arranca sola y tarda unos 3–5 minutos.
-4. Al terminar (marca verde), entra en la ejecución y descarga **AVD-time-apk**. Dentro está `AVD-time-release.apk`.
-5. En el teléfono, abre el APK y permite "Instalar apps desconocidas" cuando Android lo pida.
+## Estructura
 
-## Opción B: Android Studio
-
-1. Abre esta carpeta con **File > Open**.
-2. Espera a que termine la sincronización de Gradle.
-3. **Build > Build App Bundle(s) / APK(s) > Build APK(s)**.
+| Carpeta | Contenido |
+|---|---|
+| `app/src/main/assets/index.html` | La app completa (pantallas, temporizador, memorias, historial) |
+| `app/src/main/java/.../MainActivity.java` | Voz, vibración, pantalla encendida, portapapeles |
+| `app/src/github/` | Versión de descarga directa: busca e instala actualizaciones desde GitHub Releases |
+| `app/src/play/` | Versión para Google Play: sin internet ni actualizador (las actualiza Play) |
+| `.github/workflows/release.yml` | Publica una versión firmada en cada cambio a `main` |
+| `.github/workflows/build-apk.yml` | APK de prueba en otras ramas |
+| `docs/` | Página de descarga y política de privacidad (GitHub Pages) |
+| `play/` | Icono, gráfico destacado y capturas para Google Play |
+| `VERSION` | Los dos primeros números de la versión (1.0) |
 
 ## Logo y colores
 
-- Logo AVD time en `logo/` (versión cuadrada de 1024 px para redes o Play Store, y versiones negra y verde con fondo transparente).
-- Icono de la app: `app/src/main/res/mipmap-*/` (fondo verde en `values/styles.xml`, color `ic_bg`).
+- Icono de la app: `app/src/main/res/mipmap-*/` (fondo verde `ic_bg` en `values/styles.xml`).
 - Colores de la app: bloque `:root` al principio de `app/src/main/assets/index.html` (`--brand` es el verde AVD #2EE59D).
 
-## Notas
-
-- Cada APK se firma siempre con la misma clave (`app/avd-time-upload.jks`, contraseña en `keystore.properties`), así que las versiones nuevas se instalan encima de la anterior sin borrar datos.
-- Cada cambio subido a `main` compila una versión nueva (1.0.N) y la publica en Releases. La app la detecta al abrirse y muestra el botón **Actualizar**.
-- Aviso: el repositorio es público y la clave de firma es visible. Para protegerla, pon el repositorio en privado (Settings > General > Danger Zone > Change visibility).
-- GitHub genera dos archivos: el AAB (para Google Play) y el APK (para instalar directo en un teléfono).
-- Con la pantalla bloqueada Android puede pausar la app. Mientras entrenas la pantalla se mantiene encendida sola.
-- Los programas, memorias e historial se guardan en el teléfono.
+La clave de firma **no** está en el repositorio: va en los secretos de GitHub (PUBLICAR.md, paso 1).
